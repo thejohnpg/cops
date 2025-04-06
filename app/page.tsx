@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Info, Star, SpaceIcon as Galaxy, CloudFog, AlertCircle } from "lucide-react"
 
 interface Position {
   x: number
@@ -78,14 +78,17 @@ interface AnalysisResults {
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [processedImage, setProcessedImage] = useState<string | null>(null)
-  // Adicionar estado de loading
   const [isProcessing, setIsProcessing] = useState(false)
   const [activeTab, setActiveTab] = useState("viewer")
   const [results, setResults] = useState<AnalysisResults | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [showOriginal, setShowOriginal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [processingProgress, setProcessingProgress] = useState(0)
+  const progressInterval = useRef<NodeJS.Timeout | null>(null)
 
-  // Estilo global para evitar problemas de hidratação
+  // Global style to avoid hydration issues
   useEffect(() => {
     const style = document.createElement("style")
     style.innerHTML = `
@@ -104,7 +107,7 @@ export default function Home() {
     }
   }, [])
 
-  // Verificar se há um parâmetro de imagem na URL
+  // Check for image parameter in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const imageParam = urlParams.get("image")
@@ -116,22 +119,20 @@ export default function Home() {
 
   const handleFileUpload = async (file: File) => {
     try {
-      setIsProcessing(true)
+      setIsProcessing(false)
+      setError(null)
+      setResults(null)
+      setProcessedImage(null)
 
-      // Armazenar o arquivo localmente para processamento posterior
+      // Store the file locally for later processing
       setUploadedFile(file)
 
-      // Criar uma URL local para visualização
+      // Create a local URL for preview
       const localUrl = URL.createObjectURL(file)
       setOriginalImage(localUrl)
-
-      // Reset previous results
-      setProcessedImage(null)
-      setResults(null)
-
-      setIsProcessing(false)
     } catch (error) {
       console.error("Error handling file upload:", error)
+      setError("Failed to load the selected image. Please try another file.")
       setIsProcessing(false)
     }
   }
@@ -139,49 +140,69 @@ export default function Home() {
   const handleSampleImage = async (samplePath: string) => {
     try {
       setIsProcessing(true)
+      setError(null)
+      setResults(null)
+      setProcessedImage(null)
 
       // Fetch the sample image and convert to File object
       const response = await fetch(samplePath)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sample image: ${response.statusText}`)
+      }
+
       const blob = await response.blob()
       const file = new File([blob], samplePath.split("/").pop() || "sample.jpg", { type: blob.type })
 
-      // Armazenar o arquivo localmente para processamento posterior
+      // Store the file locally for later processing
       setUploadedFile(file)
 
-      // Criar uma URL local para visualização
+      // Create a local URL for preview
       const localUrl = URL.createObjectURL(file)
       setOriginalImage(localUrl)
-
-      // Reset previous results
-      setProcessedImage(null)
-      setResults(null)
 
       setIsProcessing(false)
     } catch (error) {
       console.error("Error loading sample image:", error)
+      setError(`Failed to load sample image: ${error instanceof Error ? error.message : String(error)}`)
       setIsProcessing(false)
     }
   }
 
-  // Modificar a função processImage para mostrar o loading
   const processImage = async () => {
     if (!uploadedFile) return
 
     setIsProcessing(true)
+    setError(null)
+    setProcessingProgress(0)
+
+    // Start a progress simulation
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current)
+    }
+
+    progressInterval.current = setInterval(() => {
+      setProcessingProgress((prev) => {
+        // Slowly increase progress, but never reach 100% until we get the actual result
+        const increment = Math.random() * 5
+        const newProgress = prev + increment
+        return newProgress < 90 ? newProgress : 90
+      })
+    }, 500)
 
     try {
-      // Criar um FormData para enviar o arquivo diretamente para o servidor
+      // Create a FormData to send the file directly to the server
       const formData = new FormData()
       formData.append("file", uploadedFile)
 
-      // Enviar o arquivo para processamento no servidor
+      // Send the file for processing on the server
       const response = await fetch("/api/process-image", {
         method: "POST",
         body: formData,
       })
 
       if (!response.ok) {
-        throw new Error(`Error processing image: ${response.statusText}`)
+        const errorData = await response.json()
+        throw new Error(`Error processing image: ${errorData.details || response.statusText}`)
       }
 
       const data = await response.json()
@@ -192,14 +213,49 @@ export default function Home() {
       // Set the detection results
       setResults(data.results)
 
-      // Mudar automaticamente para a aba de resultados
+      // Automatically switch to the results tab
       setActiveTab("results")
     } catch (error) {
       console.error("Error processing image:", error)
-      alert("Error processing image. Please try again.")
+      setError(`Failed to process image: ${error instanceof Error ? error.message : String(error)}`)
     } finally {
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current)
+      }
+      setProcessingProgress(100)
       setIsProcessing(false)
     }
+  }
+
+  const getObjectTypeIcon = (type: string) => {
+    switch (type) {
+      case "star":
+        return <Star className="h-4 w-4 text-yellow-400" />
+      case "galaxy":
+        return <Galaxy className="h-4 w-4 text-purple-400" />
+      case "nebula":
+        return <CloudFog className="h-4 w-4 text-blue-400" />
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-400" />
+    }
+  }
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 0.9) return "bg-green-900/30 text-green-400 border-green-700/50"
+    if (confidence >= 0.7) return "bg-blue-900/30 text-blue-400 border-blue-700/50"
+    if (confidence >= 0.5) return "bg-yellow-900/30 text-yellow-400 border-yellow-700/50"
+    return "bg-red-900/30 text-red-400 border-red-700/50"
+  }
+
+  const formatNumber = (num: number, precision = 2) => {
+    if (num === null || num === undefined) return "N/A"
+
+    // Handle scientific notation for very large/small numbers
+    if (Math.abs(num) < 0.001 || Math.abs(num) > 10000) {
+      return num.toExponential(precision)
+    }
+
+    return num.toFixed(precision)
   }
 
   return (
@@ -251,7 +307,7 @@ export default function Home() {
           </div>
           <p style={{ color: "#d1d5db", maxWidth: "600px", marginTop: "10px" }}>
             Discover the universe through advanced image processing. Upload space images to detect and identify
-            celestial bodies.
+            celestial bodies with precision.
           </p>
         </div>
 
@@ -333,7 +389,6 @@ export default function Home() {
 
               {/* Process Button */}
               <div style={{ marginTop: "20px" }}>
-                {/* Modificar o botão de processamento para mostrar o loading */}
                 <button
                   onClick={processImage}
                   disabled={!uploadedFile || isProcessing}
@@ -357,13 +412,33 @@ export default function Home() {
                   {isProcessing ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Processing...
+                      Processing... {processingProgress.toFixed(0)}%
                     </>
                   ) : (
                     "Analyze Image"
                   )}
                 </button>
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div
+                  style={{
+                    marginTop: "16px",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    background: "rgba(220, 38, 38, 0.1)",
+                    border: "1px solid rgba(220, 38, 38, 0.3)",
+                    color: "#f87171",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <AlertCircle className="h-4 w-4" />
+                    <span style={{ fontWeight: "500" }}>Error</span>
+                  </div>
+                  <p style={{ margin: "8px 0 0 0", fontSize: "0.875rem" }}>{error}</p>
+                </div>
+              )}
 
               {/* Sample Images */}
               <div style={{ marginTop: "24px" }}>
@@ -460,6 +535,28 @@ export default function Home() {
                   Analysis Results
                 </button>
               </div>
+
+              {/* Toggle button for original/processed image */}
+              {processedImage && activeTab === "viewer" && (
+                <button
+                  style={{
+                    padding: "6px 12px",
+                    background: "#1f2937",
+                    border: "none",
+                    borderRadius: "4px",
+                    color: "#9ca3af",
+                    cursor: "pointer",
+                    fontSize: "0.875rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                  onClick={() => setShowOriginal(!showOriginal)}
+                >
+                  <Info className="h-4 w-4" />
+                  {showOriginal ? "Show Processed" : "Show Original"}
+                </button>
+              )}
             </div>
 
             <div style={{ flex: "1", overflow: "hidden" }}>
@@ -513,7 +610,7 @@ export default function Home() {
                       }}
                     >
                       <img
-                        src={processedImage || originalImage}
+                        src={processedImage && !showOriginal ? processedImage : originalImage}
                         alt="Space image"
                         style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
                       />
@@ -521,7 +618,6 @@ export default function Home() {
                   )}
                 </div>
               ) : (
-                // Adicionar indicador de loading na área de resultados
                 <div style={{ padding: "16px", height: "100%", overflowY: "auto" }}>
                   {isProcessing ? (
                     <div
@@ -541,9 +637,24 @@ export default function Home() {
                           This may take a moment as we process your image with our AI models
                         </p>
                       </div>
+                      <div style={{ width: "80%", marginTop: "16px" }}>
+                        <div style={{ width: "100%", height: "8px", backgroundColor: "#1f2937", borderRadius: "4px" }}>
+                          <div
+                            style={{
+                              width: `${processingProgress}%`,
+                              height: "100%",
+                              backgroundColor: "#7c3aed",
+                              borderRadius: "4px",
+                              transition: "width 0.3s ease-in-out",
+                            }}
+                          />
+                        </div>
+                        <p style={{ textAlign: "center", color: "#9ca3af", fontSize: "0.75rem", marginTop: "4px" }}>
+                          {processingProgress.toFixed(0)}% complete
+                        </p>
+                      </div>
                     </div>
                   ) : results && results.summary ? (
-                    // Conteúdo existente dos resultados
                     <>
                       {/* Image Summary */}
                       <div
@@ -648,7 +759,7 @@ export default function Home() {
                             color: "#fcd34d",
                           }}
                         >
-                          ⭐ Stars: {results.summary.object_counts.stars}
+                          <Star className="h-3 w-3" /> Stars: {results.summary.object_counts.stars}
                         </span>
                         <span
                           style={{
@@ -663,7 +774,7 @@ export default function Home() {
                             color: "#c4b5fd",
                           }}
                         >
-                          🌌 Galaxies: {results.summary.object_counts.galaxies}
+                          <Galaxy className="h-3 w-3" /> Galaxies: {results.summary.object_counts.galaxies}
                         </span>
                         <span
                           style={{
@@ -678,7 +789,7 @@ export default function Home() {
                             color: "#93c5fd",
                           }}
                         >
-                          🌠 Nebulae: {results.summary.object_counts.nebulae}
+                          <CloudFog className="h-3 w-3" /> Nebulae: {results.summary.object_counts.nebulae}
                         </span>
                       </div>
 
@@ -696,91 +807,101 @@ export default function Home() {
                             Detected Celestial Objects
                           </h3>
                         </div>
-                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                          <thead>
-                            <tr style={{ borderBottom: "1px solid #374151", background: "rgba(31, 41, 55, 0.5)" }}>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Object</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Type</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Confidence</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Size (px)</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Magnitude</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {results.objects.map((object, index) => (
-                              <tr key={index} style={{ borderBottom: "1px solid #374151" }}>
-                                <td style={{ padding: "12px 16px", color: "#d1d5db" }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <thead>
+                              <tr style={{ borderBottom: "1px solid #374151", background: "rgba(31, 41, 55, 0.5)" }}>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Object</th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Type</th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>
+                                  Confidence
+                                </th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Size (px)</th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Magnitude</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {results.objects.slice(0, 50).map((object, index) => (
+                                <tr key={index} style={{ borderBottom: "1px solid #374151" }}>
+                                  <td style={{ padding: "12px 16px", color: "#d1d5db" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                      {getObjectTypeIcon(object.type)}
+                                      <span>{object.name || "Unnamed"}</span>
+                                      {object.catalog && (
+                                        <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>
+                                          ({object.catalog})
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: "12px 16px", color: "#d1d5db" }}>
+                                    {object.type === "star"
+                                      ? object.color
+                                        ? `${object.color} star`
+                                        : "Star"
+                                      : object.type === "galaxy"
+                                        ? object.galaxy_type
+                                          ? `${object.galaxy_type}`
+                                          : "Galaxy"
+                                        : object.nebula_type
+                                          ? `${object.nebula_type}`
+                                          : "Nebula"}
+                                  </td>
+                                  <td style={{ padding: "12px 16px" }}>
                                     <span
                                       style={{
+                                        padding: "2px 8px",
+                                        background:
+                                          object.confidence >= 0.9
+                                            ? "rgba(22, 163, 74, 0.2)"
+                                            : object.confidence >= 0.7
+                                              ? "rgba(59, 130, 246, 0.2)"
+                                              : "rgba(234, 179, 8, 0.2)",
+                                        border:
+                                          object.confidence >= 0.9
+                                            ? "1px solid rgba(22, 163, 74, 0.3)"
+                                            : object.confidence >= 0.7
+                                              ? "1px solid rgba(59, 130, 246, 0.3)"
+                                              : "1px solid rgba(234, 179, 8, 0.3)",
+                                        borderRadius: "9999px",
+                                        fontSize: "0.75rem",
                                         color:
-                                          object.type === "star"
-                                            ? "#fcd34d"
-                                            : object.type === "galaxy"
-                                              ? "#c4b5fd"
-                                              : "#93c5fd",
+                                          object.confidence >= 0.9
+                                            ? "#86efac"
+                                            : object.confidence >= 0.7
+                                              ? "#93c5fd"
+                                              : "#fcd34d",
                                       }}
                                     >
-                                      {object.type === "star" ? "⭐" : object.type === "galaxy" ? "🌌" : "🌠"}
+                                      {Math.round(object.confidence * 100)}%
                                     </span>
-                                    <span>{object.name || "Unnamed"}</span>
-                                    {object.catalog && (
-                                      <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>({object.catalog})</span>
-                                    )}
-                                  </div>
-                                </td>
-                                <td style={{ padding: "12px 16px", color: "#d1d5db" }}>
-                                  {object.type === "star"
-                                    ? object.color
-                                      ? `${object.color} star`
-                                      : "Star"
-                                    : object.type === "galaxy"
-                                      ? object.galaxy_type
-                                        ? `${object.galaxy_type} galaxy`
-                                        : "Galaxy"
-                                      : object.nebula_type
-                                        ? `${object.nebula_type} nebula`
-                                        : "Nebula"}
-                                </td>
-                                <td style={{ padding: "12px 16px" }}>
-                                  <span
-                                    style={{
-                                      padding: "2px 8px",
-                                      background:
-                                        object.confidence >= 0.9
-                                          ? "rgba(22, 163, 74, 0.2)"
-                                          : object.confidence >= 0.7
-                                            ? "rgba(59, 130, 246, 0.2)"
-                                            : "rgba(234, 179, 8, 0.2)",
-                                      border:
-                                        object.confidence >= 0.9
-                                          ? "1px solid rgba(22, 163, 74, 0.3)"
-                                          : object.confidence >= 0.7
-                                            ? "1px solid rgba(59, 130, 246, 0.3)"
-                                            : "1px solid rgba(234, 179, 8, 0.3)",
-                                      borderRadius: "9999px",
-                                      fontSize: "0.75rem",
-                                      color:
-                                        object.confidence >= 0.9
-                                          ? "#86efac"
-                                          : object.confidence >= 0.7
-                                            ? "#93c5fd"
-                                            : "#fcd34d",
-                                    }}
-                                  >
-                                    {Math.round(object.confidence * 100)}%
-                                  </span>
-                                </td>
-                                <td style={{ padding: "12px 16px", color: "#9ca3af" }}>{object.size.toFixed(2)}</td>
-                                <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
-                                  {object.magnitude !== null && object.magnitude !== undefined
-                                    ? object.magnitude.toFixed(2)
-                                    : "N/A"}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                  </td>
+                                  <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
+                                    {formatNumber(object.size)}
+                                  </td>
+                                  <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
+                                    {object.magnitude !== null && object.magnitude !== undefined
+                                      ? formatNumber(object.magnitude)
+                                      : "N/A"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        {results.objects.length > 50 && (
+                          <div
+                            style={{
+                              padding: "8px 16px",
+                              background: "rgba(31, 41, 55, 0.5)",
+                              textAlign: "center",
+                              fontSize: "0.875rem",
+                              color: "#9ca3af",
+                            }}
+                          >
+                            Showing 50 of {results.objects.length} objects
+                          </div>
+                        )}
                       </div>
 
                       {/* Scientific Data Table */}
@@ -797,64 +918,60 @@ export default function Home() {
                             Scientific Data
                           </h3>
                         </div>
-                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                          <thead>
-                            <tr style={{ borderBottom: "1px solid #374151", background: "rgba(31, 41, 55, 0.5)" }}>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Object</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Distance</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>
-                                Red/Blueshift
-                              </th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Mass</th>
-                              <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Temperature</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {results.objects
-                              .filter((obj) => obj.distance || obj.redshift || obj.mass || obj.temperature)
-                              .map((object, index) => (
-                                <tr key={index} style={{ borderBottom: "1px solid #374151" }}>
-                                  <td style={{ padding: "12px 16px", color: "#d1d5db" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                      <span
-                                        style={{
-                                          color:
-                                            object.type === "star"
-                                              ? "#fcd34d"
-                                              : object.type === "galaxy"
-                                                ? "#c4b5fd"
-                                                : "#93c5fd",
-                                        }}
-                                      >
-                                        {object.type === "star" ? "⭐" : object.type === "galaxy" ? "🌌" : "🌠"}
-                                      </span>
-                                      <span>{object.name || "Unnamed"}</span>
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
-                                    {object.distance ? `${object.distance} ${object.distance_unit || ""}` : "N/A"}
-                                  </td>
-                                  <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
-                                    {object.redshift !== undefined
-                                      ? object.redshift > 0
-                                        ? `Redshift: ${object.redshift.toFixed(6)}`
-                                        : object.redshift < 0
-                                          ? `Blueshift: ${Math.abs(object.redshift).toFixed(6)}`
-                                          : "No shift"
-                                      : "N/A"}
-                                  </td>
-                                  <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
-                                    {object.mass ? `${object.mass.toExponential(2)} ${object.mass_unit || ""}` : "N/A"}
-                                  </td>
-                                  <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
-                                    {object.temperature
-                                      ? `${object.temperature} ${object.temperature_unit || ""}`
-                                      : "N/A"}
-                                  </td>
-                                </tr>
-                              ))}
-                          </tbody>
-                        </table>
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <thead>
+                              <tr style={{ borderBottom: "1px solid #374151", background: "rgba(31, 41, 55, 0.5)" }}>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Object</th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Distance</th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>
+                                  Red/Blueshift
+                                </th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>Mass</th>
+                                <th style={{ padding: "12px 16px", textAlign: "left", color: "#d1d5db" }}>
+                                  Temperature
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {results.objects
+                                .filter((obj) => obj.distance || obj.redshift || obj.mass || obj.temperature)
+                                .slice(0, 20)
+                                .map((object, index) => (
+                                  <tr key={index} style={{ borderBottom: "1px solid #374151" }}>
+                                    <td style={{ padding: "12px 16px", color: "#d1d5db" }}>
+                                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        {getObjectTypeIcon(object.type)}
+                                        <span>{object.name || "Unnamed"}</span>
+                                      </div>
+                                    </td>
+                                    <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
+                                      {object.distance
+                                        ? `${formatNumber(object.distance)} ${object.distance_unit || ""}`
+                                        : "N/A"}
+                                    </td>
+                                    <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
+                                      {object.redshift !== undefined
+                                        ? object.redshift > 0
+                                          ? `Redshift: ${formatNumber(object.redshift, 6)}`
+                                          : object.redshift < 0
+                                            ? `Blueshift: ${formatNumber(Math.abs(object.redshift), 6)}`
+                                            : "No shift"
+                                        : "N/A"}
+                                    </td>
+                                    <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
+                                      {object.mass ? `${formatNumber(object.mass)} ${object.mass_unit || ""}` : "N/A"}
+                                    </td>
+                                    <td style={{ padding: "12px 16px", color: "#9ca3af" }}>
+                                      {object.temperature
+                                        ? `${formatNumber(object.temperature)} ${object.temperature_unit || ""}`
+                                        : "N/A"}
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
 
                       {/* Explanation */}

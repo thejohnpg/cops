@@ -5,7 +5,7 @@ import * as fs from "fs"
 
 export async function POST(request: NextRequest) {
   try {
-    // Processar o FormData diretamente
+    // Process FormData directly
     const formData = await request.formData()
     const file = formData.get("file") as File
 
@@ -46,12 +46,18 @@ export async function POST(request: NextRequest) {
     console.log("Output image path:", outputImagePath)
     console.log("Output JSON path:", outputJsonPath)
 
-    // Execute the Python script
+    // Execute the Python script with timeout
     const result = await new Promise<string>((resolve, reject) => {
       const pythonProcess = spawn("python", [pythonScriptPath, inputImagePath, outputImagePath, outputJsonPath])
 
       let output = ""
       let errorOutput = ""
+
+      // Set a timeout of 60 seconds
+      const timeout = setTimeout(() => {
+        pythonProcess.kill()
+        reject(new Error("Python script execution timed out after 60 seconds"))
+      }, 60000)
 
       pythonProcess.stdout.on("data", (data) => {
         const dataStr = data.toString()
@@ -66,12 +72,18 @@ export async function POST(request: NextRequest) {
       })
 
       pythonProcess.on("close", (code) => {
+        clearTimeout(timeout)
         console.log(`Python process exited with code ${code}`)
         if (code !== 0) {
           reject(new Error(`Python script exited with code ${code}: ${errorOutput}`))
         } else {
           resolve(output)
         }
+      })
+
+      pythonProcess.on("error", (err) => {
+        clearTimeout(timeout)
+        reject(new Error(`Failed to start Python process: ${err.message}`))
       })
     })
 
@@ -101,6 +113,11 @@ export async function POST(request: NextRequest) {
     const publicImagePath = join(publicDir, publicImageName)
     fs.copyFileSync(outputImagePath, publicImagePath)
 
+    // Save a copy of the results JSON to the public directory for reference
+    const publicJsonName = `results_${timestamp}.json`
+    const publicJsonPath = join(publicDir, publicJsonName)
+    fs.copyFileSync(outputJsonPath, publicJsonPath)
+
     // Clean up temporary files
     try {
       fs.unlinkSync(inputImagePath)
@@ -113,11 +130,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       processedImageUrl: `/results/${publicImageName}`,
+      resultsJsonUrl: `/results/${publicJsonName}`,
       results,
     })
   } catch (error) {
     console.error("Error processing image:", error)
-    // Retornar uma mensagem de erro mais detalhada
+    // Return a more detailed error message
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
     return NextResponse.json(
       {
