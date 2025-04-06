@@ -104,6 +104,16 @@ export default function Home() {
     }
   }, [])
 
+  // Verificar se há um parâmetro de imagem na URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const imageParam = urlParams.get("image")
+
+    if (imageParam) {
+      handleSampleImage(imageParam)
+    }
+  }, [])
+
   const handleFileUpload = async (file: File) => {
     try {
       setIsProcessing(true)
