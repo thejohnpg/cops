@@ -1,0 +1,249 @@
+[
+  {
+    "id": "e3f6644d-50bf-4ab6-9589-1becfe93d651",
+    "type": "galaxy",
+    "name": "Whirlpool",
+    "confidence": 0.7796412291618002,
+    "position": {
+      "x": 560,
+      "y": 262
+    },
+    "size": 3.3574458098003648,
+    "brightness": 3.661171854223255,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "89874dfe-cecc-4362-97fb-b12dd0bb15fe",
+    "type": "nebula",
+    "name": "Helix",
+    "confidence": 0.6296124617694694,
+    "position": {
+      "x": 26,
+      "y": 577
+    },
+    "size": 7.722131157491016,
+    "brightness": 98.32036043482428,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "f6378815-ccce-4530-a1e8-6b1a3edb19e0",
+    "type": "galaxy",
+    "name": "Whirlpool",
+    "confidence": 0.8562425819863614,
+    "position": {
+      "x": 308,
+      "y": 355
+    },
+    "size": 8.014590830167155,
+    "brightness": 38.334837856284665,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "c4575c96-fb6b-4a0a-b033-83dd137ec1d3",
+    "type": "star",
+    "name": "Procyon",
+    "confidence": 0.9288007497583916,
+    "position": {
+      "x": 720,
+      "y": 269
+    },
+    "size": 10.375178090628928,
+    "brightness": 32.55880855115028,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "0c628d9b-49ad-4b78-96f7-5b2adf437ad5",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.5546764485238306,
+    "position": {
+      "x": 41,
+      "y": 221
+    },
+    "size": 1.359819354668376,
+    "brightness": 81.63391983372499,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "13a56fe0-986c-4065-8227-48e947b2e381",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.5740837835140141,
+    "position": {
+      "x": 334,
+      "y": 486
+    },
+    "size": 10.182314050171774,
+    "brightness": 28.12129722625325,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "bf8cb075-e305-460a-b643-cfe008125b9e",
+    "type": "galaxy",
+    "name": "Whirlpool",
+    "confidence": 0.6994194984120251,
+    "position": {
+      "x": 507,
+      "y": 464
+    },
+    "size": 5.4029856703839165,
+    "brightness": 95.58658907626798,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "733212c2-8ec7-466a-af62-acc31ff936ac",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.8248890384803137,
+    "position": {
+      "x": 192,
+      "y": 240
+    },
+    "size": 6.583238404716249,
+    "brightness": 33.540996814762345,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "86191d5f-e0e6-4a60-ab11-9bbb60bea63e",
+    "type": "star",
+    "name": "Sirius",
+    "confidence": 0.8016528167174303,
+    "position": {
+      "x": 256,
+      "y": 596
+    },
+    "size": 10.365366998308156,
+    "brightness": 2.8116713507347013,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "815ab281-dddc-49f4-b593-97a8d580b984",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.7693911390016829,
+    "position": {
+      "x": 708,
+      "y": 553
+    },
+    "size": 10.578179100754829,
+    "brightness": 91.91636976224495,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "5a0b4f98-3e65-486b-82e6-9ca6db41e80b",
+    "type": "star",
+    "name": null,
+    "confidence": 0.916005094500852,
+    "position": {
+      "x": 51,
+      "y": 81
+    },
+    "size": 2.956549884248062,
+    "brightness": 14.978682218895223,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "f85685af-b432-47a3-bc0a-4c6c12b04650",
+    "type": "galaxy",
+    "name": "Whirlpool",
+    "confidence": 0.8892373776402789,
+    "position": {
+      "x": 731,
+      "y": 396
+    },
+    "size": 3.732907564620173,
+    "brightness": 46.85276278043378,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "a1b804b3-bbbf-4aa0-b2d4-d03bc25c41d4",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.6238570074468599,
+    "position": {
+      "x": 113,
+      "y": 148
+    },
+    "size": 10.828930944819845,
+    "brightness": 56.75458113478062,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "dfcaa43a-3f9f-4356-88c7-3594331a54d6",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.7704430147742041,
+    "position": {
+      "x": 629,
+      "y": 54
+    },
+    "size": 8.220254421514072,
+    "brightness": 83.33614443770276,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "8b5b34ec-a75e-434b-95f0-9c708e8fda1e",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.5793781878237918,
+    "position": {
+      "x": 562,
+      "y": 330
+    },
+    "size": 9.872381282214047,
+    "brightness": 48.6604580356999,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "db964c63-49dd-423d-a4a0-1e542b7feada",
+    "type": "star",
+    "name": null,
+    "confidence": 0.8088751818685009,
+    "position": {
+      "x": 580,
+      "y": 538
+    },
+    "size": 6.802925566815869,
+    "brightness": 34.180046929845446,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "0a4f9a8f-924a-4576-ab75-4baead90f5e9",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.8480811166050233,
+    "position": {
+      "x": 472,
+      "y": 423
+    },
+    "size": 10.086671821696871,
+    "brightness": 75.20701422371852,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "ca74cea6-585b-4aa9-98bb-64c46536845e",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.9003855581643884,
+    "position": {
+      "x": 623,
+      "y": 138
+    },
+    "size": 5.565251508718746,
+    "brightness": 27.55563302357771,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "58f56575-00bd-48e7-9952-0a3dbfe74a22",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.9564843385992229,
+    "position": {
+      "x": 4,
+      "y": 254
+    },
+    "size": 1.392854697293148,
+    "brightness": 77.99489056715159,
+    "color": "#FFFFFF"
+  }
+]

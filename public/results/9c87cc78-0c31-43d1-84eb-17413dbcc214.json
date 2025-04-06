@@ -1,0 +1,197 @@
+[
+  {
+    "id": "b6376719-974d-43fc-a0f5-5999e51f9522",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.981414633763405,
+    "position": {
+      "x": 452,
+      "y": 48
+    },
+    "size": 3.0043393555681166,
+    "brightness": 26.21719114318255,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "d913dfb4-99fc-4550-b15e-d56a6240d31b",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.9042070710916418,
+    "position": {
+      "x": 752,
+      "y": 75
+    },
+    "size": 3.9275007278915632,
+    "brightness": 44.74506491793046,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "82047c64-2de4-42d6-8c3d-6b424d18de5e",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.9857169614175626,
+    "position": {
+      "x": 361,
+      "y": 355
+    },
+    "size": 8.083510539405351,
+    "brightness": 90.81248988315048,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "f157a64b-7a35-44b3-a2e5-c782058cafd0",
+    "type": "star",
+    "name": null,
+    "confidence": 0.8525386906669585,
+    "position": {
+      "x": 72,
+      "y": 51
+    },
+    "size": 3.851009713288082,
+    "brightness": 43.86484840263787,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "c8003d3c-f887-4fb2-a82d-d01844988f20",
+    "type": "star",
+    "name": null,
+    "confidence": 0.909927995200304,
+    "position": {
+      "x": 790,
+      "y": 99
+    },
+    "size": 6.9277299093842135,
+    "brightness": 17.91917757027153,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "006878f6-fa4a-4b00-98c3-9ec05667b7f6",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.870608109374434,
+    "position": {
+      "x": 400,
+      "y": 549
+    },
+    "size": 3.283735649052112,
+    "brightness": 37.1169514504033,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "cd0a6f9c-198d-41a6-8b51-3c947bdb1c87",
+    "type": "galaxy",
+    "name": null,
+    "confidence": 0.9178504883043923,
+    "position": {
+      "x": 703,
+      "y": 581
+    },
+    "size": 7.324511426624857,
+    "brightness": 58.969613952062815,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "33e902e6-d2a4-4bf9-8bee-19af0613ea7f",
+    "type": "nebula",
+    "name": "Butterfly",
+    "confidence": 0.8848937747836771,
+    "position": {
+      "x": 420,
+      "y": 282
+    },
+    "size": 9.935617333593067,
+    "brightness": 56.158269364636084,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "ac576af8-0d77-4990-8843-a8d03f74fe8e",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.9217024050637048,
+    "position": {
+      "x": 432,
+      "y": 16
+    },
+    "size": 7.7696477473108025,
+    "brightness": 98.02798407831726,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "f47384c7-5f25-4865-b712-9531a3560051",
+    "type": "star",
+    "name": null,
+    "confidence": 0.8537850976894346,
+    "position": {
+      "x": 16,
+      "y": 197
+    },
+    "size": 4.443695349361291,
+    "brightness": 79.18001147178617,
+    "color": "#FFFF00"
+  },
+  {
+    "id": "25611ec1-746f-4748-a80e-62f10e7f30c8",
+    "type": "unknown",
+    "name": null,
+    "confidence": 0.7308338556745273,
+    "position": {
+      "x": 124,
+      "y": 28
+    },
+    "size": 6.782621798920163,
+    "brightness": 4.510600291856437,
+    "color": "#FFFFFF"
+  },
+  {
+    "id": "d19d7bed-341c-4958-9cc0-06b38bfb03f7",
+    "type": "nebula",
+    "name": null,
+    "confidence": 0.6958852321125528,
+    "position": {
+      "x": 410,
+      "y": 302
+    },
+    "size": 6.048775092531712,
+    "brightness": 15.216459659003778,
+    "color": "#00BFFF"
+  },
+  {
+    "id": "d052beca-c3b2-4283-bf96-a7373b7431e9",
+    "type": "galaxy",
+    "name": "Sombrero",
+    "confidence": 0.5715707799333066,
+    "position": {
+      "x": 279,
+      "y": 249
+    },
+    "size": 8.294150039910063,
+    "brightness": 16.412782430640902,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "acc9d011-3e00-4aac-abbe-71e063813bff",
+    "type": "galaxy",
+    "name": "Andromeda",
+    "confidence": 0.5270343850801938,
+    "position": {
+      "x": 554,
+      "y": 35
+    },
+    "size": 1.0980028415847722,
+    "brightness": 48.05616696621,
+    "color": "#8A2BE2"
+  },
+  {
+    "id": "5b95f299-3330-4e65-87ff-ea50275f8566",
+    "type": "nebula",
+    "name": "Eagle",
+    "confidence": 0.9389657073910065,
+    "position": {
+      "x": 353,
+      "y": 137
+    },
+    "size": 3.4050241249279947,
+    "brightness": 45.6643039277145,
+    "color": "#00BFFF"
+  }
+]
