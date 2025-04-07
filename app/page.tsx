@@ -168,6 +168,8 @@ export default function Home() {
     }
   }
 
+  // Modifique a função processImage para garantir que os resultados sejam exibidos corretamente
+
   const processImage = async () => {
     if (!uploadedFile) return
 
@@ -206,15 +208,29 @@ export default function Home() {
       }
 
       const data = await response.json()
+      console.log("Received response data:", data)
 
       // Set the processed image with annotations
-      setProcessedImage(data.processedImageUrl)
+      if (data.processedImageUrl) {
+        setProcessedImage(data.processedImageUrl)
+        console.log("Set processed image URL:", data.processedImageUrl)
+      } else {
+        console.error("No processed image URL in response")
+      }
 
       // Set the detection results
-      setResults(data.results)
+      if (data.results) {
+        console.log("Setting results:", data.results)
+        setResults(data.results)
+      } else {
+        console.error("No results in response")
+        setError("No analysis results returned from the server")
+      }
 
-      // Automatically switch to the results tab
-      setActiveTab("results")
+      // Automatically switch to the results tab if we have results
+      if (data.results) {
+        setActiveTab("results")
+      }
     } catch (error) {
       console.error("Error processing image:", error)
       setError(`Failed to process image: ${error instanceof Error ? error.message : String(error)}`)

@@ -6,4 +6,6 @@ astropy>=4.3.0
 astroquery>=0.4.5
 photutils>=1.1.0
 Pillow>=8.2.0
+firebase-admin>=5.0.0
+requests>=2.25.0
 
